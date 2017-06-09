@@ -2,6 +2,7 @@ Configuration Raven
 {
     Import-DscResource -Module xWindowsStorage
     Import-DscResource -Module xWindowsAccessControl
+    Import-DscResource -Module xWindowsUpdate
     Import-DscResource -Module xNetworking
     Import-DscResource -Module cChoco
 
@@ -53,6 +54,15 @@ Configuration Raven
             Access = 'Allow'
         }
         
+		xWindowsUpdateAgent MuSecurityImportant
+		{
+			IsSingleInstance = 'Yes'
+			UpdateNow = $true
+			Category = @('Security', 'Important')
+			Source = 'MicrosoftUpdate'
+			Notifications = 'Disabled'
+		}
+		
         cChocoInstaller InstallChoco 
         { 
             InstallDir = 'C:\choco'
