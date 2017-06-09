@@ -30,7 +30,7 @@ $firstNodeName = (Get-ServiceFabricNode | sort -Property NodeName | select -Firs
 
 if ($localNodeName -ne $firstNodeName)
 {
-	return;
+    return;
 }
 
 $packageDir = 'D:\Packages'
@@ -63,11 +63,14 @@ if ($installedPackage.Count -gt 0)
     }
 }
 
-C:\choco\choco $action safezone-azure-messaging -s "'$packageDir'" -u "'$TeamCityUser'" -p "'$TeamCityPass'" --version "'$Version'" --params "'$params'" --confirm --pre --allow-downgrade --timeout 3600
-
-if (!$?)
+if ($install)
 {
-    Write-Error "Failed to install package safezone-azure-messaging"
-}
+    C:\choco\choco $action safezone-azure-messaging -s "'$packageDir'" --version "'$Version'" --params "'$params'" --confirm --pre --allow-downgrade --timeout 3600
 
-$oldPackages | Remove-Item -Force
+    if (!$?)
+    {
+        Write-Error "Failed to install package safezone-azure-messaging"
+    }
+
+    $oldPackages | Remove-Item -Force
+}

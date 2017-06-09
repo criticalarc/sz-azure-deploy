@@ -71,7 +71,7 @@ if ($installedPackage.Count -gt 0)
 
 if ($install)
 {
-    C:\choco\choco $action safezone-azure-raven-server -s "'$packageDir'" -u "'$TeamCityUser'" -p "'$TeamCityPass'" --version "'$Version'" --confirm --pre --allow-downgrade --timeout 3600
+    C:\choco\choco $action safezone-azure-raven-server -s "'$packageDir'" --version "'$Version'" --confirm --pre --allow-downgrade --timeout 3600
 
     if (!$?)
     {

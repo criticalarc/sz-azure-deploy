@@ -30,7 +30,7 @@ $firstNodeName = (Get-ServiceFabricNode | sort -Property NodeName | select -Firs
 
 if ($localNodeName -ne $firstNodeName)
 {
-	return;
+    return;
 }
 
 $packageDir = 'D:\Packages'
@@ -98,7 +98,7 @@ if ($installedPackage.Count -gt 0)
 
 if ($install)
 {
-    C:\choco\choco $action safezone-azure-command -s "'$packageDir'" -u "'$TeamCityUser'" -p "'$TeamCityPass'" --version "'$Version'" --params "'$params'" --confirm --pre --allow-downgrade --timeout 3600
+    C:\choco\choco $action safezone-azure-command -s "'$packageDir'" --version "'$Version'" --params "'$params'" --confirm --pre --allow-downgrade --timeout 3600
 
     if (!$?)
     {
