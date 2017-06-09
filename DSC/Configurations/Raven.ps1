@@ -93,7 +93,7 @@ Configuration Raven
             Day = 'Everyday'
         }
         
-        cWSUSInstallDay WindowsUpdateInstallTime
+        cWSUSInstallTime WindowsUpdateInstallTime
         {
             Time = 4
             NodeIdPattern = 'rvn(\d+)'
