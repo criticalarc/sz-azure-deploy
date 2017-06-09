@@ -54,15 +54,15 @@ Configuration Raven
             Access = 'Allow'
         }
         
-		xWindowsUpdateAgent MuSecurityImportant
-		{
-			IsSingleInstance = 'Yes'
-			UpdateNow = $true
-			Category = @('Security', 'Important')
-			Source = 'MicrosoftUpdate'
-			Notifications = 'Disabled'
-		}
-		
+        xWindowsUpdateAgent MuSecurityImportant
+        {
+            IsSingleInstance = 'Yes'
+            UpdateNow = $true
+            Category = @('Security', 'Important')
+            Source = 'MicrosoftUpdate'
+            Notifications = 'Disabled'
+        }
+        
         cChocoInstaller InstallChoco 
         { 
             InstallDir = 'C:\choco'
