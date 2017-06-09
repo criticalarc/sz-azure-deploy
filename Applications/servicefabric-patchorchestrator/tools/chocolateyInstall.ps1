@@ -4,7 +4,6 @@ $ErrorActionPreference = "Stop"
 
 $toolsDir                     = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $applicationName              = "fabric:/PatchOrchestratorApplication"
-$applicationParameterFilePath = Join-Path $toolsDir $env:chocolateyPackageParameters
 $applicationPackagePath       = Join-Path $toolsDir 'servicefabric-patchorchestrator.sfpkg'
 
 Import-Module $toolsDir\ServiceFabricSDK
@@ -22,9 +21,9 @@ $application = Get-ServiceFabricApplication -ApplicationName $applicationName -E
 
 if ($application)
 {
-    Publish-UpgradedServiceFabricApplication -ApplicationPackagePath $applicationPackagePath -ApplicationParameterFilePath $applicationParameterFilePath -UnregisterUnusedVersions
+    Publish-UpgradedServiceFabricApplication -ApplicationPackagePath $applicationPackagePath -UnregisterUnusedVersions
 }
 else
 {
-    Publish-NewServiceFabricApplication -ApplicationPackagePath $applicationPackagePath -ApplicationParameterFilePath $applicationParameterFilePath
+    Publish-NewServiceFabricApplication -ApplicationPackagePath $applicationPackagePath
 }
