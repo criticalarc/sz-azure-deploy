@@ -4,6 +4,7 @@ Configuration Raven
     Import-DscResource -Module xWindowsAccessControl
     Import-DscResource -Module xNetworking
     Import-DscResource -Module cChoco
+    Import-DscResource -Module cMicrosoftUpdate
 
     Node "default"
     {
@@ -80,6 +81,22 @@ Configuration Raven
         {
             Name = 'sysinternals'
             DependsOn = "[cChocoInstaller]InstallChoco"
+        }
+        
+        cWSUSUpdateMode WindowsUpdateMode
+        {
+            Mode = 'AllowUserConfig'
+        }
+        
+        cWSUSInstallDay WindowsUpdateInstallDay
+        {
+            Day = 'Everyday'
+        }
+        
+        cWSUSInstallDay WindowsUpdateInstallTime
+        {
+            Time = 4
+            NodeIdPattern = 'rvn(\d+)'
         }
     }
 }
