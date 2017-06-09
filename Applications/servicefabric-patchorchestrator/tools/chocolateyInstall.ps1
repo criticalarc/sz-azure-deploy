@@ -21,9 +21,9 @@ $application = Get-ServiceFabricApplication -ApplicationName $applicationName -E
 
 if ($application)
 {
-    Publish-UpgradedServiceFabricApplication -ApplicationPackagePath $applicationPackagePath -UnregisterUnusedVersions
+    Publish-UpgradedServiceFabricApplication -ApplicationPackagePath $applicationPackagePath -ApplicationName $applicationName -UnregisterUnusedVersions
 }
 else
 {
-    Publish-NewServiceFabricApplication -ApplicationPackagePath $applicationPackagePath
+    Publish-NewServiceFabricApplication -ApplicationPackagePath $applicationPackagePath -ApplicationName $applicationName
 }
