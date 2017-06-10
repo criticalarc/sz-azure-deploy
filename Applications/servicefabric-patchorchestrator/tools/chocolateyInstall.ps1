@@ -18,12 +18,16 @@ catch
 }
 
 $application = Get-ServiceFabricApplication -ApplicationName $applicationName -ErrorAction Ignore
+$parameters = @{
+    WUFrequency = 'Daily, 04:00'
+    TaskApprovalPolicy = 'NodeWise'
+}
 
 if ($application)
 {
-    Publish-UpgradedServiceFabricApplication -ApplicationPackagePath $applicationPackagePath -ApplicationName $applicationName -UnregisterUnusedVersions
+    Publish-UpgradedServiceFabricApplication -ApplicationPackagePath $applicationPackagePath -ApplicationName $applicationName -ApplicationParameter $parameters -UnregisterUnusedVersions
 }
 else
 {
-    Publish-NewServiceFabricApplication -ApplicationPackagePath $applicationPackagePath -ApplicationName $applicationName
+    Publish-NewServiceFabricApplication -ApplicationPackagePath $applicationPackagePath -ApplicationName $applicationName -ApplicationParameter $parameters
 }
