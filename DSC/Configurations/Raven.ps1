@@ -100,5 +100,10 @@ Configuration Raven
             NodeIdPattern = '(?i)rvn(\d+)'
             Ensure = 'Present'
         }
+
+        cWSUSAutoRebootWithLoggedOnUsers WindowsUpdateAutoRebootWithLoggedOnUsers
+        {
+            Enabled = 'False'
+        }
     }
 }
