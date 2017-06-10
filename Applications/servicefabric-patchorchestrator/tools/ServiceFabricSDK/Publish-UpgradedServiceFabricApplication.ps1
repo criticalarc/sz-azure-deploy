@@ -189,6 +189,7 @@ function Publish-UpgradedServiceFabricApplication
         {
             Write-Host 'Application Type '$names.ApplicationTypeName' and Version '$names.ApplicationTypeVersion' was already registered with Cluster, unregistering it...'
             $oldApplication | Get-ServiceFabricService | Remove-ServiceFabricService -Force
+			$oldApplication | Remove-ServiceFabricApplication -Force
             $reg | Unregister-ServiceFabricApplicationType -Force
         }
     
