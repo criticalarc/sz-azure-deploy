@@ -103,7 +103,7 @@ Configuration Raven
 
         cWSUSAutoRebootWithLoggedOnUsers WindowsUpdateAutoRebootWithLoggedOnUsers
         {
-            Enabled = 'False'
+            Enable = 'False'
         }
     }
 }
