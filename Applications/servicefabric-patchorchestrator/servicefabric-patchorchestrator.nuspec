@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>servicefabric-patchorchestrator</id>
-    <version>1.1.0</version>
+    <version>1.1.0.2</version>
     <title>ServiceFabric PatchOrchestrator</title>
     <authors>CriticalArc Pty Ltd</authors>
     <owners>CriticalArc Pty Ltd</owners>
