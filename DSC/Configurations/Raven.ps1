@@ -4,7 +4,7 @@ Configuration Raven
     Import-DscResource -Module xWindowsAccessControl
     Import-DscResource -Module xNetworking
     Import-DscResource -Module cChoco
-    Import-DscResource -Module cMicrosoftUpdate
+    Import-DscResource -Module cWSUS
 
     Node "default"
     {
@@ -85,18 +85,20 @@ Configuration Raven
         
         cWSUSUpdateMode WindowsUpdateMode
         {
-            Mode = 'AllowUserConfig'
+            Mode = 'DownloadAndInstall'
         }
         
         cWSUSInstallDay WindowsUpdateInstallDay
         {
-            Day = 'Everyday'
+            Day = 'EveryDay'
+            Ensure = 'Present'
         }
         
         cWSUSInstallTime WindowsUpdateInstallTime
         {
             Time = 4
-            NodeIdPattern = 'rvn(\d+)'
+            NodeIdPattern = '(?i)rvn(\d+)'
+            Ensure = 'Present'
         }
     }
 }
