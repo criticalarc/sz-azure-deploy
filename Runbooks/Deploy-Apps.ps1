@@ -55,6 +55,12 @@ $fileUris = @('https://github.com/criticalarc/sz-azure-deploy/raw/master/Scripts
 $setting = @{fileUris=$fileUris}
 $protectedSetting = @{commandToExecute="powershell -ExecutionPolicy Unrestricted -File Install-Apps.ps1 -TeamCityUser ""$teamCityUser"" -TeamCityPass ""$teamCityPass"" -Version ""$Version"" -LocationCode ""$locationCode"" -DeploymentCode ""$deploymentCode"""}
 
+if ($vmss.ProvisioningState -eq 'Failed')
+{
+    Remove-AzureRmVmssExtension -VirtualMachineScaleSet $vmss -Name 'Microsoft.Compute.CustomScriptExtension' | Out-Null
+    Update-AzureRmVmss -ResourceGroupName $appsResourceGroupName -VirtualMachineScaleSet $vmss -Name $appsVMScaleSetName | Out-Null
+}
+
 Add-AzureRmVmssExtension -VirtualMachineScaleSet $vmss -Name 'Microsoft.Compute.CustomScriptExtension' `
                          -Publisher 'Microsoft.Compute' -Type 'CustomScriptExtension' -TypeHandlerVersion '1.7' -AutoUpgradeMinorVersion $true `
                          -Setting $setting -ProtectedSetting $protectedSetting | Out-Null
