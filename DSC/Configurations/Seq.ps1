@@ -30,7 +30,7 @@ Configuration Seq
         DiskPartition CreateDiskPartition
         {
             VirtualDiskFriendlyName = 'Seq'
-            DriveLetter = 'R'
+            DriveLetter = 'S'
             DependsOn = "[Disk]InitializeDisk"
         }
 
