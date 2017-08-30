@@ -1,4 +1,4 @@
-Configuration Raven
+Configuration Seq
 {
     Import-DscResource -Module xWindowsStorage
     Import-DscResource -Module xWindowsAccessControl
