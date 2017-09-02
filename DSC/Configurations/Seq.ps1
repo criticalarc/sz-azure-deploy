@@ -41,7 +41,7 @@ Configuration Seq
             Enabled               = "True"
             Profile               = ("Public", "Domain", "Private")
             Direction             = "InBound"
-            LocalPort             = ("5341")
+            LocalPort             = ("5341", "15341")
             Protocol              = "TCP"
         }
         
