@@ -63,19 +63,34 @@ $vms | foreach {
     {
         Write-Output "Updating $($vm.Name)..."
 
-		$ext = Get-AzureRmVMCustomScriptExtension -Name 'Microsoft.Compute.CustomScriptExtension' -ResourceGroupName $ravenResourceGroupName -VMName $vm.Name -ErrorAction SilentlyContinue
-		
-		if ($ext.ProvisioningState -eq 'Failed')
-		{
-			Remove-AzureRmVMCustomScriptExtension -Name 'Microsoft.Compute.CustomScriptExtension' -ResourceGroupName $ravenResourceGroupName -VMName $vm.Name -Force | Out-Null
-			Update-AzureRmVM -VM $vm -ResourceGroupName $ravenResourceGroupName | Out-Null
-		}
-		
-		Set-AzureRmVMCustomScriptExtension -Name 'Microsoft.Compute.CustomScriptExtension' -ResourceGroupName $ravenResourceGroupName -VMName $vm.Name -Location $ravenLocation `
-										   -FileUri 'https://github.com/criticalarc/sz-azure-deploy/raw/master/Scripts/Install-Raven.ps1' `
-										   -Run "Install-Raven.ps1 -TeamCityUser ""$teamCityUser"" -TeamCityPass ""$teamCityPass"" -Version ""$Version""" -SecureExecution | Out-Null
+        $ext = Get-AzureRmVMCustomScriptExtension -Name 'Microsoft.Compute.CustomScriptExtension' -ResourceGroupName $ravenResourceGroupName -VMName $vm.Name -ErrorAction SilentlyContinue
+        
+        if ($ext.ProvisioningState -eq 'Failed')
+        {
+            $locks = Get-AzureRmResourceLock -ResourceGroupName $ravenResourceGroupName -ErrorAction SilentlyContinue
+            
+            try
+            {
+                $locks | foreach {
+                    Remove-AzureRmResourceLock -ResourceGroupName $_.ResourceGroupName -LockName $_.Name -Force
+                }
+                
+                Remove-AzureRmVMCustomScriptExtension -Name 'Microsoft.Compute.CustomScriptExtension' -ResourceGroupName $ravenResourceGroupName -VMName $vm.Name -Force | Out-Null
+                Update-AzureRmVM -VM $vm -ResourceGroupName $ravenResourceGroupName | Out-Null
+            }
+            finally
+            {
+                $locks | foreach {
+                    Set-AzureRmResourceLock -ResourceGroupName $_.ResourceGroupName -LockName $_.Name -LockLevel $_.Properties.level -Force | Out-Null
+                }
+            }
+        }
+        
+        Set-AzureRmVMCustomScriptExtension -Name 'Microsoft.Compute.CustomScriptExtension' -ResourceGroupName $ravenResourceGroupName -VMName $vm.Name -Location $ravenLocation `
+                                           -FileUri 'https://github.com/criticalarc/sz-azure-deploy/raw/master/Scripts/Install-Raven.ps1' `
+                                           -Run "Install-Raven.ps1 -TeamCityUser ""$teamCityUser"" -TeamCityPass ""$teamCityPass"" -Version ""$Version""" -SecureExecution | Out-Null
 
-		Update-AzureRmVM -VM $vm -ResourceGroupName $ravenResourceGroupName | Out-Null
+        Update-AzureRmVM -VM $vm -ResourceGroupName $ravenResourceGroupName | Out-Null
 
         Write-Output "Updated $($vm.Name)."
     }
