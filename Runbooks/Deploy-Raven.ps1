@@ -63,9 +63,11 @@ $vms | foreach {
     {
         Write-Output "Updating $($vm.Name)..."
 
-		if ($vm.ProvisioningState -eq 'Failed')
+		$ext = Get-AzureRmVMCustomScriptExtension -Name 'Microsoft.Compute.CustomScriptExtension' -ResourceGroupName $ravenResourceGroupName -VMName $vm.Name -ErrorAction SilentlyContinue
+		
+		if ($ext.ProvisioningState -eq 'Failed')
 		{
-			Remove-AzureRmVMCustomScriptExtension -Name 'Microsoft.Compute.CustomScriptExtension' -ResourceGroupName $ravenResourceGroupName -VMName $vm.Name | Out-Null
+			Remove-AzureRmVMCustomScriptExtension -Name 'Microsoft.Compute.CustomScriptExtension' -ResourceGroupName $ravenResourceGroupName -VMName $vm.Name -Force | Out-Null
 			Update-AzureRmVM -VM $vm -ResourceGroupName $ravenResourceGroupName | Out-Null
 		}
 		
