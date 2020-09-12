@@ -9,6 +9,8 @@ param
 
 $ErrorActionPreference = 'Stop'
 
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 # Weird issue where this is _sometimes_ not in PATH
 $sfPath = 'C:\Program Files\Microsoft Service Fabric\bin\Fabric\Fabric.Code'
 if (!($env:Path -contains $sfPath))

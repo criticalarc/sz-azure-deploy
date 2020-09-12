@@ -2,6 +2,8 @@ Configuration Apps
 {
     Import-DscResource -Module xWindowsAccessControl
     Import-DscResource -Module cChoco
+    Import-DscResource -Module xPSDesiredStateConfiguration
+    Import-DscResource -ModuleName WindowsDefender
 
     Node "default"
     {
@@ -13,7 +15,7 @@ Configuration Apps
             Rights = 'Read'
             Access = 'Allow'
         }
-	
+    
         cChocoInstaller InstallChoco 
         { 
             InstallDir = 'C:\choco'
@@ -31,9 +33,9 @@ Configuration Apps
             DependsOn = "[cChocoInstaller]InstallChoco"
         }
     
-        cChocoPackageInstaller InstallFiddler4
+        cChocoPackageInstaller InstallFiddler
         {
-            Name = 'fiddler4'
+            Name = 'fiddler'
             DependsOn = "[cChocoInstaller]InstallChoco"
         }
     
@@ -41,6 +43,23 @@ Configuration Apps
         {
             Name = 'sysinternals'
             DependsOn = "[cChocoInstaller]InstallChoco"
+        }
+        
+        xGroup AddNetworkServiceToPerfMonUsers
+        {
+            GroupName = 'Performance Monitor Users'
+            Ensure = 'Present'
+            MembersToInclude = 'S-1-5-20'
+        }
+        
+        [string[]]$exclusionPath = "C:\Program Files\Microsoft Service Fabric\","D:\SvcFab\","C:\choco\";
+        [string[]]$exlusionProcess = "Fabric.exe","FabricHost.exe","FabricInstallerService.exe","FabricSetup.exe","FabricDeployer.exe","ImageBuilder.exe","FabricGateway.exe","FabricDCA.exe","FabricFAS.exe","FabricUOS.exe","FabricRM.exe","FileStoreService.exe","CriticalArc.SafeZone.Azure.Messaging.Service.exe","CriticalArc.SafeZone.Azure.Command.Service.exe";
+
+        WindowsDefender x
+        { 
+            IsSingleInstance = 'Yes';
+            ExclusionPath = $exclusionPath;
+            ExclusionProcess = $exlusionProcess;
         }
     }
 }

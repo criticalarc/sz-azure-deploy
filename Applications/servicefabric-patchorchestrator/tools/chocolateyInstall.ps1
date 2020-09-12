@@ -20,7 +20,8 @@ catch
 $application = Get-ServiceFabricApplication -ApplicationName $applicationName -ErrorAction Ignore
 $parameters = @{
     WUFrequency = 'Daily, 04:00'
-	TaskApprovalPolicy = 'NodeWise'
+    TaskApprovalPolicy = 'NodeWise'
+    MinWaitTimeBetweenNodes = '00:05:00'
 }
 
 if ($application)

@@ -5,6 +5,8 @@ param
 
 $ErrorActionPreference = 'Stop'
 
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 # Weird issue where this is _sometimes_ not in PATH
 $sfPath = 'C:\Program Files\Microsoft Service Fabric\bin\Fabric\Fabric.Code'
 if (!($env:Path -contains $sfPath))
@@ -33,7 +35,7 @@ $packageDir = 'D:\Packages'
 
 md -Path $packageDir -ErrorAction Ignore
 
-$url = "https://github.com/criticalarc/sz-azure-deploy/raw/master/Applications/servicefabric-patchorchestrator.$Version.nupkg"
+$url = "https://bitbucket.org/criticalarc/sz-azure-deploy-public/raw/master/Applications/servicefabric-patchorchestrator.$Version.nupkg"
 $packagePath = "$packageDir\servicefabric-patchorchestrator.$Version.nupkg"
 $oldPackages = Get-Item -Path "$packageDir\servicefabric-patchorchestrator.*" -Exclude "servicefabric-patchorchestrator.$Version.nupkg"
 iwr -UseBasicParsing -OutFile $packagePath $url

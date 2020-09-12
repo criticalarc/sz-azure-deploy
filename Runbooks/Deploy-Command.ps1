@@ -51,18 +51,18 @@ $appsVMScaleSetName = "vmsssz$($locationCode)$($deploymentCode)app"
 Write-Output "Updating Command VM Scale Set..."
 
 $vmss = Get-AzureRmVmss -ResourceGroupName $appsResourceGroupName -VMScaleSetName $appsVMScaleSetName
-$fileUris = @('https://github.com/criticalarc/sz-azure-deploy/raw/master/Scripts/Install-Command.ps1')
+$fileUris = @('https://bitbucket.org/criticalarc/sz-azure-deploy-public/raw/master/Scripts/Install-Command.ps1')
 $setting = @{fileUris=$fileUris}
 $protectedSetting = @{commandToExecute="powershell -ExecutionPolicy Unrestricted -File Install-Command.ps1 -TeamCityUser ""$teamCityUser"" -TeamCityPass ""$teamCityPass"" -Version ""$Version"" -LocationCode ""$locationCode"" -DeploymentCode ""$deploymentCode"""}
 
-if ($vmss.ProvisioningState -eq 'Failed')
+if (($vmss.VirtualMachineProfile.ExtensionProfile.Extensions | where {$_.Name -eq "Microsoft.Compute.CustomScriptExtension"}).Count -gt 0)
 {
     Remove-AzureRmVmssExtension -VirtualMachineScaleSet $vmss -Name 'Microsoft.Compute.CustomScriptExtension' | Out-Null
     Update-AzureRmVmss -ResourceGroupName $appsResourceGroupName -VirtualMachineScaleSet $vmss -Name $appsVMScaleSetName | Out-Null
 }
 
 Add-AzureRmVmssExtension -VirtualMachineScaleSet $vmss -Name 'Microsoft.Compute.CustomScriptExtension' `
-                         -Publisher 'Microsoft.Compute' -Type 'CustomScriptExtension' -TypeHandlerVersion '1.7' -AutoUpgradeMinorVersion $true `
+                         -Publisher 'Microsoft.Compute' -Type 'CustomScriptExtension' -TypeHandlerVersion '1.9' -AutoUpgradeMinorVersion $true `
                          -Setting $setting -ProtectedSetting $protectedSetting | Out-Null
 
 Update-AzureRmVmss -ResourceGroupName $appsResourceGroupName -VirtualMachineScaleSet $vmss -Name $appsVMScaleSetName | Out-Null

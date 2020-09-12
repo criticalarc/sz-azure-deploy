@@ -22,9 +22,9 @@ Configuration ESET
             DependsOn = "[cChocoInstaller]InstallChoco"
         }
     
-        cChocoPackageInstaller InstallFiddler4
+        cChocoPackageInstaller InstallFiddler
         {
-            Name = 'fiddler4'
+            Name = 'fiddler'
             DependsOn = "[cChocoInstaller]InstallChoco"
         }
     

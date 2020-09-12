@@ -5,6 +5,7 @@ Configuration Seq
     Import-DscResource -Module xNetworking
     Import-DscResource -Module cChoco
     Import-DscResource -Module cWSUS
+    Import-DscResource -ModuleName WindowsDefender
 
     Node "default"
     {
@@ -71,9 +72,9 @@ Configuration Seq
             DependsOn = "[cChocoInstaller]InstallChoco"
         }
     
-        cChocoPackageInstaller InstallFiddler4
+        cChocoPackageInstaller InstallFiddler
         {
-            Name = 'fiddler4'
+            Name = 'fiddler'
             DependsOn = "[cChocoInstaller]InstallChoco"
         }
     
@@ -104,6 +105,16 @@ Configuration Seq
         cWSUSAutoRebootWithLoggedOnUsers WindowsUpdateAutoRebootWithLoggedOnUsers
         {
             Enable = 'False'
+        }
+        
+        [string[]]$exclusionPath = "C:\choco\","S:\Seq\";
+        [string[]]$exlusionProcess = "Seq.exe";
+
+        WindowsDefender x
+        { 
+            IsSingleInstance = 'Yes';
+            ExclusionPath = $exclusionPath;
+            ExclusionProcess = $exlusionProcess;
         }
     }
 }

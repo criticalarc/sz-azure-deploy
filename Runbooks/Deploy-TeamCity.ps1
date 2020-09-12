@@ -50,11 +50,9 @@ if ($WebhookData -ne $null)
 
     switch ($webhookParams.Component)
     {
-        "Raven" { $runbookParams = @{ Version = $webhookParams.Version; Primary = $webhookParams.Primary; Secondary = $webhookParams.Secondary; } }
         "Messaging" { $runbookParams = @{ Version = $webhookParams.Version; } }
         "Command" { $runbookParams = @{ Version = $webhookParams.Version; } }
         "Apps" { $runbookParams = @{ Version = $webhookParams.Version; } }
-        "All" { $runbookParams = @{ Version = $webhookParams.Version; } }
         default { Write-Error "Invalid deployment component: $($webhookParams.Component)" }
     }
 
