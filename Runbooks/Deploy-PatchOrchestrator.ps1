@@ -52,15 +52,22 @@ $fileUris = @('https://raw.githubusercontent.com/criticalarc/sz-azure-deploy/mas
 $setting = @{fileUris=$fileUris}
 $protectedSetting = @{commandToExecute="powershell -ExecutionPolicy Unrestricted -File Install-PatchOrchestrator.ps1 -Version ""$Version"""}
 
-if (($vmss.VirtualMachineProfile.ExtensionProfile.Extensions | where {$_.Name -eq "Microsoft.Compute.CustomScriptExtension"}).Count -gt 0)
-{
-    Remove-AzureRmVmssExtension -VirtualMachineScaleSet $vmss -Name 'Microsoft.Compute.CustomScriptExtension' | Out-Null
-    Update-AzureRmVmss -ResourceGroupName $appsResourceGroupName -VirtualMachineScaleSet $vmss -Name $appsVMScaleSetName | Out-Null
-}
+$customScriptExtension = $vmss.VirtualMachineProfile.ExtensionProfile.Extensions | where {$_.Name -eq "Microsoft.Compute.CustomScriptExtension"}
 
-Add-AzureRmVmssExtension -VirtualMachineScaleSet $vmss -Name 'Microsoft.Compute.CustomScriptExtension' `
-                         -Publisher 'Microsoft.Compute' -Type 'CustomScriptExtension' -TypeHandlerVersion '1.9' -AutoUpgradeMinorVersion $true `
-                         -Setting $setting -ProtectedSetting $protectedSetting | Out-Null
+if ($customScriptExtension.Count -gt 0)
+{
+	$customScriptExtension[0].TypeHandlerVersion = '1.10'
+	$customScriptExtension[0].AutoUpgradeMinorVersion = $true
+	$customScriptExtension[0].Settings = $setting
+	$customScriptExtension[0].ProtectedSettings = $protectedSetting
+	$customScriptExtension[0].ForceUpdateTag = (Get-Date -Format "O")
+}
+else
+{
+	Add-AzureRmVmssExtension -VirtualMachineScaleSet $vmss -Name 'Microsoft.Compute.CustomScriptExtension' `
+							 -Publisher 'Microsoft.Compute' -Type 'CustomScriptExtension' -TypeHandlerVersion '1.10' -AutoUpgradeMinorVersion $true `
+							 -Setting $setting -ProtectedSetting $protectedSetting | Out-Null
+}
 
 Update-AzureRmVmss -ResourceGroupName $appsResourceGroupName -VirtualMachineScaleSet $vmss -Name $appsVMScaleSetName | Out-Null
     
