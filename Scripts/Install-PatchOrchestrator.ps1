@@ -35,7 +35,7 @@ $packageDir = 'D:\Packages'
 
 md -Path $packageDir -ErrorAction Ignore
 
-$url = "https://bitbucket.org/criticalarc/sz-azure-deploy-public/raw/master/Applications/servicefabric-patchorchestrator.$Version.nupkg"
+$url = "https://raw.githubusercontent.com/criticalarc/sz-azure-deploy/master/Applications/servicefabric-patchorchestrator.$Version.nupkg"
 $packagePath = "$packageDir\servicefabric-patchorchestrator.$Version.nupkg"
 $oldPackages = Get-Item -Path "$packageDir\servicefabric-patchorchestrator.*" -Exclude "servicefabric-patchorchestrator.$Version.nupkg"
 iwr -UseBasicParsing -OutFile $packagePath $url

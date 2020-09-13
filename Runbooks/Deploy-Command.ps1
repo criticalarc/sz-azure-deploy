@@ -51,7 +51,7 @@ $appsVMScaleSetName = "vmsssz$($locationCode)$($deploymentCode)app"
 Write-Output "Updating Command VM Scale Set..."
 
 $vmss = Get-AzureRmVmss -ResourceGroupName $appsResourceGroupName -VMScaleSetName $appsVMScaleSetName
-$fileUris = @('https://bitbucket.org/criticalarc/sz-azure-deploy-public/raw/master/Scripts/Install-Command.ps1')
+$fileUris = @('https://raw.githubusercontent.com/criticalarc/sz-azure-deploy/master/Scripts/Install-Command.ps1')
 $setting = @{fileUris=$fileUris}
 $protectedSetting = @{commandToExecute="powershell -ExecutionPolicy Unrestricted -File Install-Command.ps1 -TeamCityUser ""$teamCityUser"" -TeamCityPass ""$teamCityPass"" -Version ""$Version"" -LocationCode ""$locationCode"" -DeploymentCode ""$deploymentCode"""}
 
