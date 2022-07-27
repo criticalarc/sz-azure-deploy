@@ -58,6 +58,7 @@ Configuration Seq
         cChocoInstaller InstallChoco 
         { 
             InstallDir = 'C:\choco'
+            ChocoInstallScriptUrl = 'https://raw.githubusercontent.com/criticalarc/sz-azure-deploy/master/Assets/Modules/cChoco/install.ps1'
         }
 
         cChocoPackageInstaller InstallChrome
