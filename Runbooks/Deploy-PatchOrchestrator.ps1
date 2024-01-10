@@ -8,39 +8,27 @@ $ErrorActionPreference = 'Stop'
 Import-Module AzureRM.Profile
 Import-Module AzureRM.Compute
 
-$connectionName = 'AzureRunAsConnection'
-
 try
 {
-    $servicePrincipalConnection = Get-AutomationConnection -Name $connectionName        
- 
     Write-Output "Logging in to Azure..."
 
-    Add-AzureRmAccount `
-        -ServicePrincipal `
-        -TenantId $servicePrincipalConnection.TenantId `
-        -ApplicationId $servicePrincipalConnection.ApplicationId `
-        -CertificateThumbprint $servicePrincipalConnection.CertificateThumbprint | Out-Null
+    # Ensures you do not inherit an Azure Context in runbook
+    Disable-AzContextAutosave -Scope Process
+
+    # Connect to Azure with system-assigned managed identity
+    $AzureContext = (Connect-AzureRmAccount -Identity).context
 }
 catch
 {
-    if (!$servicePrincipalConnection)
-    {
-        $ErrorMessage = "Connection $connectionName not found."
-        throw $ErrorMessage
-    }
-    else
-    {
-        Write-Error -Message $_.Exception
-        throw $_.Exception
-    }
+    Write-Error -Message $_.Exception
+    throw $_.Exception
 }
 
 $subscriptionId = Get-AutomationVariable -Name 'SubscriptionId'
 $deploymentCode = Get-AutomationVariable -Name 'DeploymentCode'
 $locationCode = Get-AutomationVariable -Name 'LocationCode'
 
-Set-AzureRmContext -SubscriptionId $subscriptionId | Out-Null
+Set-AzureRmContext -SubscriptionId $subscriptionId -DefaultProfile $AzureContext | Out-Null
 
 $appsResourceGroupName = "rg-sz-$locationCode-$deploymentCode-app"
 $appsVMScaleSetName = "vmsssz$($locationCode)$($deploymentCode)app"
