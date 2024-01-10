@@ -1,6 +1,13 @@
-param
-(
-    [Parameter(Mandatory = $true)] [string] $Version
+param (
+	[string]$TempDirectory = "D:\Packages",
+	[string]$POAUpdateTime = "04:00",
+    [string]$POAUpdateFrequency = "Daily",
+    [string]$POAApprovalPolicy = "NodeWise",
+    [string]$POAWaitTimeBetweenNodes = "00:05:00",
+	[Parameter(Mandatory)]
+    [ValidatePattern("^latest$|^\d+\.\d+\.\d+$")]
+    [string]$POAVersion,
+    [Switch]$PatchNow
 )
 
 $ErrorActionPreference = 'Stop'
@@ -23,46 +30,49 @@ catch
     Connect-ServiceFabricCluster
 }
 
-$localNodeName = (Get-ServiceFabricClusterConnection).GatewayInformation.NodeName
-$firstNodeName = (Get-ServiceFabricNode | sort -Property NodeName | select -First 1).NodeName
-
-if ($localNodeName -ne $firstNodeName)
-{
-    return;
+# If Patching is required now, update time will be set to current time + 30 minutes to allow VMSS host config then execute
+if ($PatchNow) {
+    $POAUpdateTime = $((Get-Date).AddMinutes(30).ToString("HH:mm"))    
 }
 
-$packageDir = 'D:\Packages'
-
-md -Path $packageDir -ErrorAction Ignore
-
-$url = "https://raw.githubusercontent.com/criticalarc/sz-azure-deploy/master/Applications/servicefabric-patchorchestrator.$Version.nupkg"
-$packagePath = "$packageDir\servicefabric-patchorchestrator.$Version.nupkg"
-$oldPackages = Get-Item -Path "$packageDir\servicefabric-patchorchestrator.*" -Exclude "servicefabric-patchorchestrator.$Version.nupkg"
-iwr -UseBasicParsing -OutFile $packagePath $url
-
-$action = 'install'
-$installedPackage = C:\choco\choco list -lo | Where-object { $_.ToLower().Contains('servicefabric-patchorchestrator') }
-$install = $true
-
-if ($installedPackage.Count -gt 0)
-{
-    $action = 'upgrade'
-    $nameVersion = $installedPackage -split ' '
-
-    if ($nameVersion[1] -eq $Version)
-    {
-        $install = $false
-    }
+# Set POA Application Parameters
+$POAParameters = @{
+    WUFrequency = "$POAUpdateFrequency, $($POAUpdateTime)"
+    TaskApprovalPolicy = "$POAApprovalPolicy"
+    MinWaitTimeBetweenNodes = "$POAWaitTimeBetweenNodes"
 }
 
-if ($install)
-{
-    C:\choco\choco $action servicefabric-patchorchestrator -s "'$packageDir'" --version "'$Version'" --confirm --pre --allow-downgrade --timeout 3600
+# Check if POA version has been set. If not, use latest version.
+if ($POAVersion -eq "latest") {
+    $POARelease = ((Invoke-WebRequest "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases/latest").Content | ConvertFrom-Json)
+} else {
+    $POARelease = ((Invoke-WebRequest "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases").Content | ConvertFrom-Json | Where-Object {$_.tag_name -eq "v$($POAVersion)"})
+}
 
-    if (!$?)
-    {
-        Write-Error "Failed to install package servicefabric-patchorchestrator"
+$POAReleaseDownload = $POARelease.assets.browser_download_url | Where-Object {$_ -like "*.zip"}
+
+if ($POAReleaseDownload) {
+    # Download and unpack POA package from GitHub
+    Invoke-WebRequest -Uri $POAReleaseDownload -OutFile "$TempDirectory\POA.zip"
+    Expand-Archive "$TempDirectory\POA.zip" -DestinationPath "$TempDirectory\POA"
+    Set-Location "$TempDirectory\POA"
+    
+    # Check for App and Install or Upgrade
+    $PoaApp = Get-ServiceFabricApplication fabric:/PatchOrchestrationApplication
+    if ($PoaApp) {
+        if ($PoaApp.ApplicationTypeVersion -eq "$POAVersion") {
+            # Upgrade POA settings
+            Start-ServiceFabricApplicationUpgrade $PoaApp.ApplicationName -ApplicationTypeVersion $PoaApp.ApplicationTypeVersion -FailureAction Rollback -Monitored -ApplicationParameter $POAParameters
+        } else {
+            # Upgrade POA Package
+            .\Upgrade.ps1 -ApplicationParameters $POAParameters
+        }
+    } else {
+        # Deploy POA package
+        .\Deploy.ps1 -ApplicationParameters $POAParameters
     }
-
-    $oldPackages | Remove-Item -Force
+} else {
+    # Exit on error
+    Write-Host "[ERROR] Failed to find Release for version $POAVersion" -ForegroundColor Red
+    Exit 1
 }
