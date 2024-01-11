@@ -44,16 +44,16 @@ $POAParameters = @{
 
 # Check if POA version has been set. If not, use latest version.
 if ($POAVersion -eq "latest") {
-    $POARelease = ((Invoke-WebRequest "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases/latest").Content | ConvertFrom-Json)
+    $POARelease = ((Invoke-WebRequest "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases/latest" -UseBasicParsing).Content | ConvertFrom-Json)
 } else {
-    $POARelease = ((Invoke-WebRequest "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases").Content | ConvertFrom-Json | Where-Object {$_.tag_name -eq "v$($POAVersion)"})
+    $POARelease = ((Invoke-WebRequest "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases" -UseBasicParsing).Content | ConvertFrom-Json | Where-Object {$_.tag_name -eq "v$($POAVersion)"})
 }
 
 $POAReleaseDownload = $POARelease.assets.browser_download_url | Where-Object {$_ -like "*.zip"}
 
 if ($POAReleaseDownload) {
     # Download and unpack POA package from GitHub
-    Invoke-WebRequest -Uri $POAReleaseDownload -OutFile "$TempDirectory\POA.zip"
+    Invoke-WebRequest -Uri $POAReleaseDownload -UseBasicParsing -OutFile "$TempDirectory\POA.zip"
     Expand-Archive "$TempDirectory\POA.zip" -DestinationPath "$TempDirectory\POA"
     Set-Location "$TempDirectory\POA"
     
