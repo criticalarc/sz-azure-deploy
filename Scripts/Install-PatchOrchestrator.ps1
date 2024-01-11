@@ -59,7 +59,7 @@ $POAReleaseDownload = $POARelease.assets.browser_download_url | Where-Object {$_
 if ($POAReleaseDownload) {
     # Download and unpack POA package from GitHub
     Invoke-WebRequest -Uri $POAReleaseDownload -UseBasicParsing -OutFile "$TempDirectory\POA.zip"
-    Expand-Archive "$TempDirectory\POA.zip" -DestinationPath "$TempDirectory\POA"
+    Expand-Archive "$TempDirectory\POA.zip" -DestinationPath "$TempDirectory\POA" -Force
     Set-Location "$TempDirectory\POA"
     
     # Check for App and Install or Upgrade
