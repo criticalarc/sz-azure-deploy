@@ -21,6 +21,10 @@ if (!($env:Path -contains $sfPath))
     $env:Path = "$env:Path;$sfPath"
 }
 
+if (!(Test-Path $TempDirectory)) {
+    New-Item $TempDirectory -ItemType Directory
+}
+
 try
 {
     [void](Test-ServiceFabricClusterConnection)
