@@ -53,6 +53,7 @@ if ($POAVersion -eq "latest") {
     $POARelease = ((Invoke-WebRequest "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases" -UseBasicParsing).Content | ConvertFrom-Json | Where-Object {$_.tag_name -eq "v$($POAVersion)"})
 }
 
+$POAVersion = $POARelease.tag_name -replace ("v","")
 $POAReleaseDownload = $POARelease.assets.browser_download_url | Where-Object {$_ -like "*.zip"}
 
 if ($POAReleaseDownload) {
