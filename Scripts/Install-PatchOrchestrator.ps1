@@ -48,9 +48,9 @@ $POAParameters = @{
 
 # Check if POA version has been set. If not, use latest version.
 if ($POAVersion -eq "latest") {
-    $POARelease = ((Invoke-WebRequest "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases/latest" -UseBasicParsing).Content | ConvertFrom-Json)
+    $POARelease = (Invoke-RestMethod "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases/latest" -UseBasicParsing)
 } else {
-    $POARelease = ((Invoke-WebRequest "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases" -UseBasicParsing).Content | ConvertFrom-Json | Where-Object {$_.tag_name -eq "v$($POAVersion)"})
+    $POARelease = (Invoke-RestMethod "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases" -UseBasicParsing) | Where-Object {$_.tag_name -eq "v$($POAVersion)"}
 }
 
 $POAVersion = $POARelease.tag_name -replace ("v","")
@@ -58,19 +58,25 @@ $POAReleaseDownload = $POARelease.assets.browser_download_url | Where-Object {$_
 
 if ($POAReleaseDownload) {
     # Download and unpack POA package from GitHub
-    Invoke-WebRequest -Uri $POAReleaseDownload -UseBasicParsing -OutFile "$TempDirectory\POA.zip"
+    Invoke-RestMethod -Uri $POAReleaseDownload -UseBasicParsing -OutFile "$TempDirectory\POA.zip"
     Expand-Archive "$TempDirectory\POA.zip" -DestinationPath "$TempDirectory\POA" -Force
     Set-Location "$TempDirectory\POA"
     
     # Check for App and Install or Upgrade
     $PoaApp = Get-ServiceFabricApplication fabric:/PatchOrchestrationApplication
     if ($PoaApp) {
-        if ($PoaApp.ApplicationTypeVersion -eq "$POAVersion") {
-            # Upgrade POA settings
-            Start-ServiceFabricApplicationUpgrade $PoaApp.ApplicationName -ApplicationTypeVersion $PoaApp.ApplicationTypeVersion -FailureAction Rollback -Monitored -ApplicationParameter $POAParameters
+        $PoaAppUpgradeStatus = Get-ServiceFabricApplicationUpgrade -ApplicationName fabric:/PatchOrchestrationApplication
+        if ($PoaAppUpgradeStatus.UpgradeDomainsStatus.State -notmatch "Completed") {
+            Write-Host "POA application install already in progress"
+            Exit 0
         } else {
-            # Upgrade POA Package
-            .\Upgrade.ps1 -ApplicationParameters $POAParameters
+            if ($PoaApp.ApplicationTypeVersion -eq "$POAVersion") {
+                # Upgrade POA settings
+                Start-ServiceFabricApplicationUpgrade $PoaApp.ApplicationName -ApplicationTypeVersion $PoaApp.ApplicationTypeVersion -FailureAction Rollback -Monitored -ApplicationParameter $POAParameters
+            } else {
+                # Upgrade POA Package
+                .\Upgrade.ps1 -ApplicationParameters $POAParameters
+            }
         }
     } else {
         # Deploy POA package
