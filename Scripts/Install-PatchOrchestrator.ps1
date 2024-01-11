@@ -1,12 +1,12 @@
 param (
 	[string]$TempDirectory = "D:\Packages",
-	[string]$POAUpdateTime = "04:00",
-    [string]$POAUpdateFrequency = "Daily",
-    [string]$POAApprovalPolicy = "NodeWise",
-    [string]$POAWaitTimeBetweenNodes = "00:05:00",
+	[string]$PoaUpdateTime = "04:00",
+    [string]$PoaUpdateFrequency = "Daily",
+    [string]$PoaApprovalPolicy = "NodeWise",
+    [string]$PoaWaitTimeBetweenNodes = "00:05:00",
 	[Parameter(Mandatory)]
     [ValidatePattern("^latest$|^\d+\.\d+\.\d+$")]
-    [string]$POAVersion,
+    [string]$PoaVersion,
     [Switch]$PatchNow
 )
 
@@ -36,29 +36,29 @@ catch
 
 # If Patching is required now, update time will be set to current time + 30 minutes to allow VMSS host config then execute
 if ($PatchNow) {
-    $POAUpdateTime = $((Get-Date).AddMinutes(30).ToString("HH:mm"))    
+    $PoaUpdateTime = $((Get-Date).AddMinutes(30).ToString("HH:mm"))    
 }
 
 # Set POA Application Parameters
-$POAParameters = @{
-    WUFrequency = "$POAUpdateFrequency, $($POAUpdateTime)"
-    TaskApprovalPolicy = "$POAApprovalPolicy"
-    MinWaitTimeBetweenNodes = "$POAWaitTimeBetweenNodes"
+$PoaParameters = @{
+    WUFrequency = "$PoaUpdateFrequency, $($PoaUpdateTime)"
+    TaskApprovalPolicy = "$PoaApprovalPolicy"
+    MinWaitTimeBetweenNodes = "$PoaWaitTimeBetweenNodes"
 }
 
 # Check if POA version has been set. If not, use latest version.
-if ($POAVersion -eq "latest") {
-    $POARelease = (Invoke-RestMethod "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases/latest" -UseBasicParsing)
+if ($PoaVersion -eq "latest") {
+    $PoaRelease = (Invoke-RestMethod "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases/latest" -UseBasicParsing)
 } else {
-    $POARelease = (Invoke-RestMethod "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases" -UseBasicParsing) | Where-Object {$_.tag_name -eq "v$($POAVersion)"}
+    $PoaRelease = (Invoke-RestMethod "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases" -UseBasicParsing) | Where-Object {$_.tag_name -eq "v$($PoaVersion)"}
 }
 
-$POAVersion = $POARelease.tag_name -replace ("v","")
-$POAReleaseDownload = $POARelease.assets.browser_download_url | Where-Object {$_ -like "*.zip"}
+$PoaVersion = $PoaRelease.tag_name -replace ("v","")
+$PoaReleaseDownload = $PoaRelease.assets.browser_download_url | Where-Object {$_ -like "*.zip"}
 
-if ($POAReleaseDownload) {
+if ($PoaReleaseDownload) {
     # Download and unpack POA package from GitHub
-    Invoke-RestMethod -Uri $POAReleaseDownload -UseBasicParsing -OutFile "$TempDirectory\POA.zip"
+    Invoke-RestMethod -Uri $PoaReleaseDownload -UseBasicParsing -OutFile "$TempDirectory\POA.zip"
     Expand-Archive "$TempDirectory\POA.zip" -DestinationPath "$TempDirectory\POA" -Force
     Set-Location "$TempDirectory\POA"
     
@@ -70,20 +70,20 @@ if ($POAReleaseDownload) {
             Write-Host "POA application install already in progress"
             Exit 0
         } else {
-            if ($PoaApp.ApplicationTypeVersion -eq "$POAVersion") {
+            if ($PoaApp.ApplicationTypeVersion -eq "$PoaVersion") {
                 # Upgrade POA settings
-                Start-ServiceFabricApplicationUpgrade $PoaApp.ApplicationName -ApplicationTypeVersion $PoaApp.ApplicationTypeVersion -FailureAction Rollback -Monitored -ApplicationParameter $POAParameters
+                Start-ServiceFabricApplicationUpgrade $PoaApp.ApplicationName -ApplicationTypeVersion $PoaApp.ApplicationTypeVersion -FailureAction Rollback -Monitored -ApplicationParameter $PoaParameters
             } else {
                 # Upgrade POA Package
-                .\Upgrade.ps1 -ApplicationParameters $POAParameters
+                .\Upgrade.ps1 -ApplicationParameters $PoaParameters
             }
         }
     } else {
         # Deploy POA package
-        .\Deploy.ps1 -ApplicationParameters $POAParameters
+        .\Deploy.ps1 -ApplicationParameters $PoaParameters
     }
 } else {
     # Exit on error
-    Write-Host "[ERROR] Failed to find Release for version $POAVersion" -ForegroundColor Red
+    Write-Host "[ERROR] Failed to find Release for version $PoaVersion" -ForegroundColor Red
     Exit 1
 }

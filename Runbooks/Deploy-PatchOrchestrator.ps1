@@ -37,11 +37,11 @@ $appsVMScaleSetName = "vmsssz$($locationCode)$($deploymentCode)app"
 Write-Output "Updating Apps VM Scale Set with Patch Orchestrator..."
 
 $vmss = Get-AzVmss -ResourceGroupName $appsResourceGroupName -VMScaleSetName $appsVMScaleSetName
-$fileUris = @('https://raw.githubusercontent.com/criticalarc/sz-azure-deploy/bg/ITO-125-Patch-Orchestrator-Runbook/Scripts/Install-PatchOrchestrator.ps1')
+$fileUris = @('https://raw.githubusercontent.com/criticalarc/sz-azure-deploy/master/Scripts/Install-PatchOrchestrator.ps1')
 $setting = @{fileUris=$fileUris}
-$protectedSetting = @{commandToExecute="powershell -ExecutionPolicy Unrestricted -File Install-PatchOrchestrator.ps1 -POAVersion ""$Version"""}
+$protectedSetting = @{commandToExecute="powershell -ExecutionPolicy Unrestricted -File Install-PatchOrchestrator.ps1 -PoaVersion ""$Version"""}
 
-$customScriptExtension = $vmss.VirtualMachineProfile.ExtensionProfile.Extensions | where {$_.Name -eq "Microsoft.Compute.CustomScriptExtension"}
+$customScriptExtension = $vmss.VirtualMachineProfile.ExtensionProfile.Extensions | Where-Object {$_.Name -eq "Microsoft.Compute.CustomScriptExtension"}
 
 if ($customScriptExtension.Count -gt 0)
 {
