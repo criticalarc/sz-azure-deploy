@@ -66,8 +66,8 @@ if ($PoaReleaseDownload) {
     $PoaApp = Get-ServiceFabricApplication fabric:/PatchOrchestrationApplication
     if ($PoaApp) {
         $PoaAppUpgradeStatus = Get-ServiceFabricApplicationUpgrade -ApplicationName fabric:/PatchOrchestrationApplication
-        if ($PoaAppUpgradeStatus.UpgradeDomainsStatus.State -notmatch "Completed") {
-            Write-Host "POA application install already in progress"
+        if ($PoaAppUpgradeStatus.UpgradeDomainsStatus -and $PoaAppUpgradeStatus.UpgradeDomainsStatus.State -notmatch "Completed") {
+            Write-Output "POA application install already in progress"
             Exit 0
         } else {
             if ($PoaApp.ApplicationTypeVersion -eq "$PoaVersion") {
