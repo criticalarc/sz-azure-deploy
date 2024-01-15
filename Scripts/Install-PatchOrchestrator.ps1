@@ -1,10 +1,10 @@
 param (
-	[string]$TempDirectory = "D:\Packages",
-	[string]$PoaUpdateTime = "04:00",
+    [string]$TempDirectory = "D:\Packages",
+    [string]$PoaUpdateTime = "04:00",
     [string]$PoaUpdateFrequency = "Daily",
     [string]$PoaApprovalPolicy = "NodeWise",
     [string]$PoaWaitTimeBetweenNodes = "00:05:00",
-	[Parameter(Mandatory)]
+    [Parameter(Mandatory)]
     [ValidatePattern("^latest$|^\d+\.\d+\.\d+$")]
     [string]$PoaVersion,
     [Switch]$PatchNow
