@@ -41,7 +41,7 @@ if ($NsgReferences) {
         } else {
             Write-Output "NSG '$NsgTargetName' not found in Azure subscription '$($AzureContext.Subscription.Name)'. Security rules from NSG '$($NsgReference.Name)' not applied."
         }
-    } else {
-        Write-Output "No reference NSGs found in Azure subscription '$($AzureContext.Subscription.Name)'"
     }
+} else {
+    Write-Output "No reference NSGs found in Azure subscription '$($AzureContext.Subscription.Name)'"
 }
