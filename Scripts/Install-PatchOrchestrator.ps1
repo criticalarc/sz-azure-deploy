@@ -4,9 +4,9 @@ param (
     [string]$PoaUpdateFrequency = "Daily",
     [string]$PoaApprovalPolicy = "NodeWise",
     [string]$PoaWaitTimeBetweenNodes = "00:05:00",
-    [Parameter(Mandatory)]
-    [ValidatePattern("^latest$|^\d+\.\d+\.\d+$")]
-    [string]$PoaVersion,
+    [String[]]$SkipUpdateIds = "a8a2d6e3-c6dc-4eb8-bcfb-8c8c7d947899",
+    [ValidatePattern("^latest$|^\d+\.\d+\.\d+$")][string]$PoaVersion = "1.5.1",
+    [ValidateSet("criticalarc","microsoft")][string]$RepoOwner = "criticalarc",
     [Switch]$PatchNow
 )
 
@@ -36,7 +36,7 @@ catch
 
 # If Patching is required now, update time will be set to current time + 30 minutes to allow VMSS host config then execute
 if ($PatchNow) {
-    $PoaUpdateTime = $((Get-Date).AddMinutes(30).ToString("HH:mm"))    
+    $PoaUpdateTime = $((Get-Date).AddMinutes(15).ToString("HH:mm"))    
 }
 
 # Set POA Application Parameters
@@ -44,13 +44,14 @@ $PoaParameters = @{
     WUFrequency = "$PoaUpdateFrequency, $($PoaUpdateTime)"
     TaskApprovalPolicy = "$PoaApprovalPolicy"
     MinWaitTimeBetweenNodes = "$PoaWaitTimeBetweenNodes"
+    SkipUpdateIds = "$SkipUpdateIds"
 }
 
 # Check if POA version has been set. If not, use latest version.
 if ($PoaVersion -eq "latest") {
-    $PoaRelease = (Invoke-RestMethod "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases/latest" -UseBasicParsing)
+    $PoaRelease = (Invoke-RestMethod "https://api.github.com/repos/$RepoOwner/Service-Fabric-POA/releases/latest" -UseBasicParsing)
 } else {
-    $PoaRelease = (Invoke-RestMethod "https://api.github.com/repos/microsoft/Service-Fabric-POA/releases" -UseBasicParsing) | Where-Object {$_.tag_name -eq "v$($PoaVersion)"}
+    $PoaRelease = (Invoke-RestMethod "https://api.github.com/repos/$RepoOwner/Service-Fabric-POA/releases" -UseBasicParsing) | Where-Object {$_.tag_name -eq "v$($PoaVersion)"}
 }
 
 $PoaVersion = $PoaRelease.tag_name -replace ("v","")
