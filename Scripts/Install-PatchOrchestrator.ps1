@@ -7,7 +7,7 @@ param (
     [String[]]$SkipUpdateIds = "a8a2d6e3-c6dc-4eb8-bcfb-8c8c7d947899",
     [ValidatePattern("^latest$|^\d+\.\d+\.\d+$")][string]$PoaVersion = "1.5.1",
     [ValidateSet("criticalarc","microsoft")][string]$RepoOwner = "criticalarc",
-    [Switch]$PatchNow
+    [bool]$PatchNow
 )
 
 $ErrorActionPreference = 'Stop'
