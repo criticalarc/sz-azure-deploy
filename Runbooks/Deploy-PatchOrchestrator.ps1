@@ -1,6 +1,7 @@
 param
 (
-    [string]$Version = "latest"
+    [string]$Version = "1.5.1",
+    [switch]$PatchNow
 )
 
 $ErrorActionPreference = 'Stop'
@@ -39,7 +40,7 @@ Write-Output "Updating Apps VM Scale Set with Patch Orchestrator..."
 $vmss = Get-AzVmss -ResourceGroupName $appsResourceGroupName -VMScaleSetName $appsVMScaleSetName
 $fileUris = @('https://raw.githubusercontent.com/criticalarc/sz-azure-deploy/master/Scripts/Install-PatchOrchestrator.ps1')
 $setting = @{fileUris=$fileUris}
-$protectedSetting = @{commandToExecute="powershell -ExecutionPolicy Unrestricted -File Install-PatchOrchestrator.ps1 -PoaVersion ""$Version"""}
+$protectedSetting = @{commandToExecute="powershell -ExecutionPolicy Unrestricted -File Install-PatchOrchestrator.ps1 -PoaVersion ""$Version"" -PatchNow:$PatchNow"}
 
 $customScriptExtension = $vmss.VirtualMachineProfile.ExtensionProfile.Extensions | Where-Object {$_.Name -eq "Microsoft.Compute.CustomScriptExtension"}
 

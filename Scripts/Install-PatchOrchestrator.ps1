@@ -76,7 +76,7 @@ if ($PoaReleaseDownload) {
                 Start-ServiceFabricApplicationUpgrade $PoaApp.ApplicationName -ApplicationTypeVersion $PoaApp.ApplicationTypeVersion -FailureAction Rollback -Monitored -ApplicationParameter $PoaParameters
             } else {
                 # Upgrade POA Package
-                .\Upgrade.ps1 -ApplicationParameters $PoaParameters
+                .\Upgrade.ps1 -ApplicationParameters $PoaParameters -ApplicationVersion $PoaVersion
             }
         }
     } else {
