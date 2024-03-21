@@ -4,10 +4,10 @@ param (
     [string]$PoaUpdateFrequency = "Daily",
     [string]$PoaApprovalPolicy = "NodeWise",
     [string]$PoaWaitTimeBetweenNodes = "00:05:00",
-    [String[]]$SkipUpdateIds = "a8a2d6e3-c6dc-4eb8-bcfb-8c8c7d947899",
+    [string[]]$SkipUpdateIds = "a8a2d6e3-c6dc-4eb8-bcfb-8c8c7d947899",
     [ValidatePattern("^latest$|^\d+\.\d+\.\d+$")][string]$PoaVersion = "1.5.1",
     [ValidateSet("criticalarc","microsoft")][string]$RepoOwner = "criticalarc",
-    [bool]$PatchNow
+    [switch]$PatchNow
 )
 
 $ErrorActionPreference = 'Stop'
