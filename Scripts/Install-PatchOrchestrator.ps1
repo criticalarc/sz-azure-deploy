@@ -7,7 +7,7 @@ param (
     [string[]]$SkipUpdateIds = "a8a2d6e3-c6dc-4eb8-bcfb-8c8c7d947899",
     [ValidatePattern("^latest$|^\d+\.\d+\.\d+$")][string]$PoaVersion = "1.5.1",
     [ValidateSet("criticalarc","microsoft")][string]$RepoOwner = "criticalarc",
-    [switch]$PatchNow
+    [string]$PatchNow
 )
 
 $ErrorActionPreference = 'Stop'
@@ -35,7 +35,7 @@ catch
 }
 
 # If Patching is required now, update time will be set to current time + 30 minutes to allow VMSS host config then execute
-if ($PatchNow) {
+if ($PatchNow -eq "true") {
     $PoaUpdateTime = $((Get-Date).AddMinutes(15).ToString("HH:mm"))    
 }
 
