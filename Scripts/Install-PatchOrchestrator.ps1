@@ -4,7 +4,6 @@ param (
     [string]$PoaUpdateFrequency = "Daily",
     [string]$PoaApprovalPolicy = "NodeWise",
     [string]$PoaWaitTimeBetweenNodes = "00:05:00",
-    [string[]]$SkipUpdateIds = "a8a2d6e3-c6dc-4eb8-bcfb-8c8c7d947899",
     [ValidatePattern("^latest$|^\d+\.\d+\.\d+$")][string]$PoaVersion = "1.5.1",
     [ValidateSet("criticalarc","microsoft")][string]$RepoOwner = "criticalarc",
     [string]$PatchNow
@@ -44,7 +43,6 @@ $PoaParameters = @{
     WUFrequency = "$PoaUpdateFrequency, $($PoaUpdateTime)"
     TaskApprovalPolicy = "$PoaApprovalPolicy"
     MinWaitTimeBetweenNodes = "$PoaWaitTimeBetweenNodes"
-    SkipUpdateIds = "$SkipUpdateIds"
 }
 
 # Check if POA version has been set. If not, use latest version.
